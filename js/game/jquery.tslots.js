@@ -24,6 +24,7 @@
     // - ready
     // - starting
     // - spinning
+    // - stopping
     // - stopped
     this.status = 'init';
     // This is the current itemPosition of the element.
@@ -41,6 +42,10 @@
     // Vars
     this.spinningSpeed = 2000;
     this.spinningEasing = 'linear';
+    this.spinningAcc = 2;
+    this.spinningBrake = 1.5;
+    this.itemsToStop = 3;
+    this.itemsToStopToGo = undefined;
 
     /**
      * Starts spinning the wheel.
@@ -72,18 +77,14 @@
         return;
       }
 
-      var style = $wheel.getStyleForPosition($wheel.itemPosition + 1);
+      // Stop and spin out the current item.
+      $itemList.stop(true, false);
+      spinToNextPosition($wheel.spinningSpeed, $wheel.spinningEasing, function () {
+        // And now start stopping.
+        $wheel.itemsToStopToGo = $wheel.itemsToStop;
+        stopping();
+      });
 
-      $itemList.stop(true, false)
-        .animate(
-          style,
-          $wheel.spinningSpeed,
-          $wheel.spinningEasing,
-          function() {
-            $wheel.status = 'stopped';
-            alert('Done!');
-          }
-        );
     };
 
     /**
@@ -115,12 +116,18 @@
       return style;
     }
 
-
+    /**
+     * Speed up spinning for the next item and on.
+     */
     this.faster = function () {
-      $wheel.spinningSpeed = $wheel.spinningSpeed / 2;
+      $wheel.spinningSpeed = $wheel.spinningSpeed / $wheel.spinningAcc;
     }
+
+    /**
+     * Slow down spinning for the next item and on.
+     */
     this.slower = function () {
-      $wheel.spinningSpeed = $wheel.spinningSpeed * 2;
+      $wheel.spinningSpeed = $wheel.spinningSpeed * $wheel.spinningBrake;
     }
 
     /**
@@ -169,6 +176,27 @@
       $itemList.css(style);
       // Mark the itemPosition we are at now.
       $wheel.itemPosition = 0;
+    }
+
+    /**
+     * Private function to stop the spinning wheel.
+     */
+    var stopping = function() {
+      $wheel.status = 'stopping';
+      $wheel.slower();
+      if ($wheel.itemsToStopToGo > 1) {
+        spinToNextPosition($wheel.spinningSpeed, $wheel.spinningEasing, function() {
+          $wheel.itemsToStopToGo--;
+          stopping();
+        });
+      }
+      else {
+        spinToNextPosition($wheel.spinningSpeed * 2, 'easeOutBack', function() {
+          $wheel.itemsToStopToGo--;
+          $wheel.status = 'stopped';
+          alert('Stopped at position ' + $wheel.itemPosition);
+        });
+      }
     }
 
     // Set ready status, after we registered all methods.
