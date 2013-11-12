@@ -56,14 +56,15 @@
       $wheel.status = 'starting';
 
       // Start spinning.
-      $wheel.spin();
+      spinToNextPosition($wheel.spinningSpeed, $wheel.spinningEasing, function () {
+        $wheel.spin();
+      });
     };
 
     /**
      * Stops spinning the wheel.
      */
     this.stop = function () {
-      // @todo: stop it.
 
       // We can only stop, if the wheel is spinning.
       if ($wheel.status != 'spinning') {
@@ -83,7 +84,6 @@
             alert('Done!');
           }
         );
-
     };
 
     /**
@@ -93,41 +93,11 @@
      * control, instead of animating a whole wheel spin.
      */
     this.spin = function () {
-      var style = $wheel.getStyleForPosition(this.itemPosition + 1);
-
       $wheel.status = 'spinning';
-
-      $itemList.animate(
-        style,
-        $wheel.spinningSpeed,
-        $wheel.spinningEasing,
-        // When the animation ends, we will start the animation again to scroll
-        // to the next item.
-        function () {
-          // As the animation ended, we are now on the next item.
-          $wheel.itemPosition++;
-
-          // If we reached the last item, we have to reset the item, so the
-          // animation can start over to the next item.
-          if ($wheel.itemPosition == $wheel.itemCount) {
-            $wheel.reset();
-          }
-
-          $wheel.spin();
-        }
-      );
-
+      spinToNextPosition($wheel.spinningSpeed, $wheel.spinningEasing, function () {
+        $wheel.spin();
+      });
     };
-
-    /**
-     * Reset the wheel to the first item.
-     */
-    this.reset = function() {
-      var style = $wheel.getStyleForPosition(0);
-      $itemList.css(style);
-      // Mark the itemPosition we are at now.
-      $wheel.itemPosition = 0;
-    }
 
     /**
      * Provides css styles to show the item of a given item in the slot.
@@ -153,7 +123,55 @@
       $wheel.spinningSpeed = $wheel.spinningSpeed * 2;
     }
 
-    // Set ready status, after we registered all callbacks.
+    /**
+     * Private function to controll the spinning of the wheel to the next item.
+     *
+     * @param int speed
+     * @param string easing
+     *
+     * @param Function finished
+     *   The callback to call when the position is reached.
+     */
+    var spinToNextPosition = function (speed, easing, finished) {
+      var style = $wheel.getStyleForPosition($wheel.itemPosition + 1);
+
+      $itemList.animate(
+        style,
+        speed,
+        easing,
+        // When the animation ends, we will update the item position and make
+        // sure we start over at the first item, when we reached the last one
+        // (which is a duplicate of the first).
+        function () {
+          // As the animation ended, we are now on the next item.
+          $wheel.itemPosition++;
+
+          // If we reached the last item, we have to reset the item, so the
+          // animation can start over to the next item.
+          if ($wheel.itemPosition == $wheel.itemCount) {
+            infinitizeSpin();
+          }
+
+          // Continue with our callback.
+          finished();
+        }
+      );
+    };
+
+    /**
+     * Makes the spinning infinite.
+     *
+     * Private function to make sure the weel spins by reseting to the first
+     * item when we reached the last.
+     */
+    var infinitizeSpin = function() {
+      var style = $wheel.getStyleForPosition(0);
+      $itemList.css(style);
+      // Mark the itemPosition we are at now.
+      $wheel.itemPosition = 0;
+    }
+
+    // Set ready status, after we registered all methods.
     this.status = 'ready';
   }
 
