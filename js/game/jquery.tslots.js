@@ -20,6 +20,11 @@
     var $wheel = this;
 
     // Holds the status of the current element.
+    // - init
+    // - ready
+    // - starting
+    // - spinning
+    // - stopped
     this.status = 'init';
     // This is the current itemPosition of the element.
     this.itemPosition = 0;
@@ -41,6 +46,15 @@
      * Starts spinning the wheel.
      */
     this.start = function () {
+
+      // We can only start, if the wheel is spinning.
+      if ($wheel.status != 'ready' && $wheel.status != 'stopped') {
+        console.log('Cannot start wheel, as it is not ready.');
+        return;
+      }
+
+      $wheel.status = 'starting';
+
       // Start spinning.
       $wheel.spin();
     };
@@ -50,6 +64,26 @@
      */
     this.stop = function () {
       // @todo: stop it.
+
+      // We can only stop, if the wheel is spinning.
+      if ($wheel.status != 'spinning') {
+        console.log('Cannot stop wheel, as wheel is not spinning.');
+        return;
+      }
+
+      var style = $wheel.getStyleForPosition($wheel.itemPosition + 1);
+
+      $itemList.stop(true, false)
+        .animate(
+          style,
+          $wheel.spinningSpeed,
+          $wheel.spinningEasing,
+          function() {
+            $wheel.status = 'stopped';
+            alert('Done!');
+          }
+        );
+
     };
 
     /**
@@ -70,6 +104,7 @@
         // When the animation ends, we will start the animation again to scroll
         // to the next item.
         function () {
+          // As the animation ended, we are now on the next item.
           $wheel.itemPosition++;
 
           // If we reached the last item, we have to reset the item, so the
@@ -109,6 +144,9 @@
       };
       return style;
     }
+
+    // Set ready status, after we registered all callbacks.
+    this.status = 'ready';
   }
 
   // Attaching our tSlotsWheel object as plugin to jquery elements.
