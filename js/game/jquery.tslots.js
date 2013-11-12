@@ -57,6 +57,8 @@
 
     // This is the current itemPosition of the element.
     this.itemPosition = 0;
+    // Time since the item stands in that position.
+    this.itemTime = +new Date;
 
     // For the moment it is supposed all elements have the same height, so we
     // can simply take the height of the first element.
@@ -118,7 +120,10 @@
 
       // Stop and spin out the current item.
       $itemList.stop(true, false);
-      spinToNextPosition($wheel.spinningDuration, $wheel.spinningEasing, function () {
+
+      // The spinning duration for rolling out is only a part of the default one.
+      var restDuration = $wheel.spinningDuration - (+new Date - this.itemTime);
+      spinToNextPosition(restDuration, $wheel.spinningEasing, function () {
         // And now start stopping.
         $wheel.itemsToStopToGo = $wheel.itemsToStop;
         stopping();
@@ -211,6 +216,7 @@
         $itemList.css(style);
         $wheel.itemPosition = 0;
       }
+      $wheel.itemTime = +new Date;
     };
 
     /**
