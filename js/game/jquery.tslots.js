@@ -11,22 +11,50 @@
 
   /**
    * The object constructor to attach as jquery plugin below.
+   *
+   * @param element
+   *   The DOM element to convert to a slot wheel.
+   * @param object options
+   *   - spinningDuration: the duration for a single item to change
+   *   - spinningBrake: the factor the spinning gets slower when stopping
+   *   - itemsToStop: the number of items to roll, till the wheel stops
    */
   var tSlotsWheel = function (element, options) {
-    // The jquery object for this wheel.
+
+    /**
+     * The jquery object for this wheel.
+     *
+     * @var
+     */
     var $wrapper = $(element);
+
+    /**
+     * The jquery object for the list.
+     *
+     * @var
+     */
     var $itemList = $wrapper.children('ul');
-    // This $wheels object to store data and functions.
+
+    /**
+     * This $wheels object to store data and functions.
+     *
+     * @var
+     */
     var $wheel = this;
 
-    // Holds the status of the current element.
-    // - init
-    // - ready
-    // - starting
-    // - spinning
-    // - stopping
-    // - stopped
+    /**
+     * Holds the status of the current element.
+     *
+     * @var string
+     *   - init
+     *   - ready
+     *   - starting
+     *   - spinning
+     *   - stopping
+     *   - stopped
+     */
     this.status = 'init';
+
     // This is the current itemPosition of the element.
     this.itemPosition = 0;
 
@@ -39,13 +67,24 @@
     // item of the list.
     $itemList.children('li').first().clone().appendTo($itemList);
 
-    // Vars
-    this.spinningSpeed = 2000;
+    // Fill object params with value from options.
+    var settings = $.extend({
+      spinningDuration: 500,
+      spinningBrake: 1.1,
+      itemsToStop: 3
+    }, options || {});
+
+    this.spinningDuration = settings.spinningDuration;
+    this.spinningBrake = settings.spinningBrake;
+    this.itemsToStop = settings.itemsToStop;
+
+    // Vars that may be set as options in a later version.
     this.spinningEasing = 'linear';
     this.spinningAcc = 2;
-    this.spinningBrake = 1.5;
-    this.itemsToStop = 3;
+
+    // Temp param to set for stopping.
     this.itemsToStopToGo = undefined;
+
 
     /**
      * Starts spinning the wheel.
@@ -61,7 +100,7 @@
       $wheel.status = 'starting';
 
       // Start spinning.
-      spinToNextPosition($wheel.spinningSpeed, $wheel.spinningEasing, function () {
+      spinToNextPosition($wheel.spinningDuration, $wheel.spinningEasing, function () {
         $wheel.spin();
       });
     };
@@ -79,7 +118,7 @@
 
       // Stop and spin out the current item.
       $itemList.stop(true, false);
-      spinToNextPosition($wheel.spinningSpeed, $wheel.spinningEasing, function () {
+      spinToNextPosition($wheel.spinningDuration, $wheel.spinningEasing, function () {
         // And now start stopping.
         $wheel.itemsToStopToGo = $wheel.itemsToStop;
         stopping();
@@ -95,7 +134,7 @@
      */
     this.spin = function () {
       $wheel.status = 'spinning';
-      spinToNextPosition($wheel.spinningSpeed, $wheel.spinningEasing, function () {
+      spinToNextPosition($wheel.spinningDuration, $wheel.spinningEasing, function () {
         $wheel.spin();
       });
     };
@@ -120,31 +159,31 @@
      * Speed up spinning for the next item and on.
      */
     this.faster = function () {
-      $wheel.spinningSpeed = $wheel.spinningSpeed / $wheel.spinningAcc;
+      $wheel.spinningDuration = $wheel.spinningDuration / $wheel.spinningAcc;
     }
 
     /**
      * Slow down spinning for the next item and on.
      */
     this.slower = function () {
-      $wheel.spinningSpeed = $wheel.spinningSpeed * $wheel.spinningBrake;
+      $wheel.spinningDuration = $wheel.spinningDuration * $wheel.spinningBrake;
     }
 
     /**
      * Private function to controll the spinning of the wheel to the next item.
      *
-     * @param int speed
+     * @param int duration
      * @param string easing
      *
      * @param Function finished
      *   The callback to call when the position is reached.
      */
-    var spinToNextPosition = function (speed, easing, finished) {
+    var spinToNextPosition = function (duration, easing, finished) {
       var style = $wheel.getStyleForPosition($wheel.itemPosition + 1);
 
       $itemList.animate(
         style,
-        speed,
+        duration,
         easing,
         // When the animation ends, we will update the item position and make
         // sure we start over at the first item, when we reached the last one
@@ -181,13 +220,13 @@
       $wheel.status = 'stopping';
       $wheel.slower();
       if ($wheel.itemsToStopToGo > 1) {
-        spinToNextPosition($wheel.spinningSpeed, $wheel.spinningEasing, function() {
+        spinToNextPosition($wheel.spinningDuration, $wheel.spinningEasing, function() {
           $wheel.itemsToStopToGo--;
           stopping();
         });
       }
       else {
-        spinToNextPosition($wheel.spinningSpeed * 2, 'easeOutBack', function() {
+        spinToNextPosition($wheel.spinningDuration * 2, 'easeOutBack', function() {
           $wheel.itemsToStopToGo--;
           $wheel.status = 'stopped';
           alert('Stopped at position ' + $wheel.itemPosition);
