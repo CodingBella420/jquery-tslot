@@ -145,6 +145,14 @@
       return style;
     }
 
+
+    this.faster = function () {
+      $wheel.spinningSpeed = $wheel.spinningSpeed / 2;
+    }
+    this.slower = function () {
+      $wheel.spinningSpeed = $wheel.spinningSpeed * 2;
+    }
+
     // Set ready status, after we registered all callbacks.
     this.status = 'ready';
   }
