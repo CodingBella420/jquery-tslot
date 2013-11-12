@@ -9,24 +9,106 @@
 
 (function ($) {
 
-  // The object constructor to attach as jquery plugin below.
+  /**
+   * The object constructor to attach as jquery plugin below.
+   */
   var tSlotsWheel = function (element, options) {
-    var elem = $(element);
-    var obj = this;
+    // The jquery object for this wheel.
+    var $wrapper = $(element);
+    var $itemList = $wrapper.children('ul');
+    // This $wheels object to store data and functions.
+    var $wheel = this;
 
-    var settings = $.extend({
-      param: 'defaultValue'
-    }, options || {});
+    // Holds the status of the current element.
+    this.status = 'init';
+    // This is the current itemPosition of the element.
+    this.itemPosition = 0;
 
-    // Public method - can be called from client code
-    this.publicMethod = function () {
-      console.log('public method called!');
+    // For the moment it is supposed all elements have the same height, so we
+    // can simply take the height of the first element.
+    this.itemHeight = $itemList.children('li').first().outerHeight();
+    this.itemCount = $itemList.children('li').size();
+
+    // To get a seemless animation, we have to clone the first item to the last
+    // item of the list.
+    $itemList.children('li').first().clone().appendTo($itemList);
+
+    // Vars
+    this.spinningSpeed = 2000;
+    this.spinningEasing = 'linear';
+
+    /**
+     * Starts spinning the wheel.
+     */
+    this.start = function () {
+      // Start spinning.
+      $wheel.spin();
     };
 
-    // Private method - can only be called from within this object
-    var privateMethod = function () {
-      console.log('private method called!');
+    /**
+     * Stops spinning the wheel.
+     */
+    this.stop = function () {
+      // @todo: stop it.
     };
+
+    /**
+     * Spins the wheel with a constant velocity, item by item.
+     *
+     * The function does one item after each other. So we have a fine grained
+     * control, instead of animating a whole wheel spin.
+     */
+    this.spin = function () {
+      var style = $wheel.getStyleForPosition(this.itemPosition + 1);
+
+      $wheel.status = 'spinning';
+
+      $itemList.animate(
+        style,
+        $wheel.spinningSpeed,
+        $wheel.spinningEasing,
+        // When the animation ends, we will start the animation again to scroll
+        // to the next item.
+        function () {
+          $wheel.itemPosition++;
+
+          // If we reached the last item, we have to reset the item, so the
+          // animation can start over to the next item.
+          if ($wheel.itemPosition == $wheel.itemCount) {
+            $wheel.reset();
+          }
+
+          $wheel.spin();
+        }
+      );
+
+    };
+
+    /**
+     * Reset the wheel to the first item.
+     */
+    this.reset = function() {
+      var style = $wheel.getStyleForPosition(0);
+      $itemList.css(style);
+      // Mark the itemPosition we are at now.
+      $wheel.itemPosition = 0;
+    }
+
+    /**
+     * Provides css styles to show the item of a given item in the slot.
+     *
+     * @param int pos
+     *   Position of the item (starts at 0)
+     *
+     * @return object
+     *   Object containing css styles.
+     */
+    this.getStyleForPosition = function (pos) {
+      var style = {
+        "margin-top": '-' + (pos * $wheel.itemHeight) + 'px',
+      };
+      return style;
+    }
   }
 
   // Attaching our tSlotsWheel object as plugin to jquery elements.
