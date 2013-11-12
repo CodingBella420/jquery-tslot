@@ -151,13 +151,7 @@
         // (which is a duplicate of the first).
         function () {
           // As the animation ended, we are now on the next item.
-          $wheel.itemPosition++;
-
-          // If we reached the last item, we have to reset the item, so the
-          // animation can start over to the next item.
-          if ($wheel.itemPosition == $wheel.itemCount) {
-            infinitizeSpin();
-          }
+          setNextPosition();
 
           // Continue with our callback.
           finished();
@@ -166,17 +160,19 @@
     };
 
     /**
-     * Makes the spinning infinite.
+     * Private helper to increment position.
      *
-     * Private function to make sure the weel spins by reseting to the first
-     * item when we reached the last.
+     * Makes the spinning infinite, as it makes sure the weel spins by resetting
+     * to the first item when we reached the last.
      */
-    var infinitizeSpin = function() {
-      var style = $wheel.getStyleForPosition(0);
-      $itemList.css(style);
-      // Mark the itemPosition we are at now.
-      $wheel.itemPosition = 0;
-    }
+    var setNextPosition = function () {
+      $wheel.itemPosition++;
+      if ($wheel.itemPosition == $wheel.itemCount) {
+        var style = $wheel.getStyleForPosition(0);
+        $itemList.css(style);
+        $wheel.itemPosition = 0;
+      }
+    };
 
     /**
      * Private function to stop the spinning wheel.
