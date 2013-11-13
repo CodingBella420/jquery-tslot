@@ -100,6 +100,8 @@
       }
 
       $wheel.status = 'starting';
+      // Trigger this event on the wrapper.
+      $wrapper.trigger('tslotStarting', {tslot: $wheel});
 
       // Start spinning.
       spinToNextPosition($wheel.spinningDuration, $wheel.spinningEasing, function () {
@@ -138,7 +140,11 @@
      * control, instead of animating a whole wheel spin.
      */
     this.spin = function () {
-      $wheel.status = 'spinning';
+      if ($wheel.status != 'spinning') {
+        $wheel.status = 'spinning';
+        // Trigger this event on the wrapper.
+        $wrapper.trigger('tslotSpinning', {tslot: $wheel});
+      }
       spinToNextPosition($wheel.spinningDuration, $wheel.spinningEasing, function () {
         $wheel.spin();
       });
@@ -241,14 +247,16 @@
         spinToNextPosition($wheel.spinningDuration * 2, 'easeOutBack', function() {
           $wheel.itemsToStopToGo--;
           $wheel.status = 'stopped';
-          // @todo: invoke some event
-          //alert('Stopped at position ' + $wheel.itemPosition);
+          // Trigger this event on the wrapper.
+          $wrapper.trigger('tslotStopped', {tslot: $wheel});
         });
       }
     }
 
     // Set ready status, after we registered all methods.
     this.status = 'ready';
+    // Trigger this event on the wrapper.
+    $wrapper.trigger('tslotReady', {tslot: $wheel});
   }
 
   // Attaching our tSlotsWheel object as plugin to jquery elements.
