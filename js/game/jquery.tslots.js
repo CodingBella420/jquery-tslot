@@ -57,6 +57,7 @@
 
     // This is the current itemPosition of the element.
     this.itemPosition = 0;
+
     // Time since the item stands in that position.
     this.itemTime = +new Date;
 
@@ -218,12 +219,23 @@
     var setNextPosition = function () {
       $wheel.itemPosition++;
       if ($wheel.itemPosition == $wheel.itemCount) {
-        var style = $wheel.getStyleForPosition(0);
-        $itemList.css(style);
-        $wheel.itemPosition = 0;
+        setPosition(0);
       }
       $wheel.itemTime = +new Date;
     };
+
+    /**
+     * Private helper to set the wheel to a specific position.
+     *
+     * @param int pos
+     */
+    var setPosition = function (pos) {
+      if (pos < $wheel.itemCount) {
+        var style = $wheel.getStyleForPosition(pos);
+        $itemList.css(style);
+        $wheel.itemPosition = pos;
+      }
+    }
 
     /**
      * Private function to stop the spinning wheel.
@@ -251,6 +263,11 @@
           $wrapper.trigger('tslotStopped', {tslot: $wheel});
         });
       }
+    }
+
+    // If the options provided a default position, we set the init status to it.
+    if (options.itemPosition != undefined) {
+      setPosition(options.itemPosition);
     }
 
     // Set ready status, after we registered all methods.
