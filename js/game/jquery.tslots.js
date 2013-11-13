@@ -223,7 +223,13 @@
      * Private function to stop the spinning wheel.
      */
     var stopping = function() {
-      $wheel.status = 'stopping';
+      if ($wheel.status != 'stopping') {
+        $wheel.status = 'stopping';
+
+        // Trigger this event on the wrapper.
+        $wrapper.trigger('tslotStopping', {tslot: $wheel});
+      }
+
       $wheel.slower();
       if ($wheel.itemsToStopToGo > 1) {
         spinToNextPosition($wheel.spinningDuration, $wheel.spinningEasing, function() {
