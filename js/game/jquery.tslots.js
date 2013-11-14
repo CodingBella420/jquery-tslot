@@ -230,6 +230,8 @@
      * @param int pos
      */
     var setPosition = function (pos) {
+      // Make sure we got an integer one.
+      var pos = parseInt(pos);
       if (pos < $wheel.itemCount) {
         var style = $wheel.getStyleForPosition(pos);
         $itemList.css(style);
