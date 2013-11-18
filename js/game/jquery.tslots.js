@@ -162,7 +162,7 @@
      */
     this.getStyleForPosition = function (pos) {
       var style = {
-        "margin-top": '-' + (pos * $wheel.itemHeight) + 'px',
+        "margin-top": '-' + (pos * $wheel.itemHeight) + 'px'
       };
       return style;
     }
