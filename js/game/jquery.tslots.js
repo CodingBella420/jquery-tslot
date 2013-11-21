@@ -58,6 +58,7 @@
     // This is the current itemPosition of the element.
     this.itemPosition = 0;
 
+
     // Time since the item stands in that position.
     this.itemTime = +new Date;
 
@@ -66,9 +67,14 @@
     this.itemHeight = $itemList.children('li').first().outerHeight();
     this.itemCount = $itemList.children('li').size();
 
+
+    this.prependedItems = this.itemCount;
+    this.appendedItems = this.itemCount;
+
     // To get a seemless animation, we have to clone the first item to the last
     // item of the list.
-    $itemList.children('li').first().clone().appendTo($itemList);
+    $itemList.children('li').clone().prependTo($itemList);
+    $itemList.children('li').clone().appendTo($itemList);
 
     // Fill object params with value from options.
     var settings = $.extend({
@@ -162,7 +168,7 @@
      */
     this.getStyleForPosition = function (pos) {
       var style = {
-        "margin-top": '-' + (pos * $wheel.itemHeight) + 'px'
+        "margin-top": '-' + ( ($wheel.prependedItems + pos) * $wheel.itemHeight) + 'px'
       };
       return style;
     }
@@ -268,8 +274,12 @@
     }
 
     // If the options provided a default position, we set the init status to it.
-    if (options.itemPosition != undefined) {
+    if (options.itemPosition != undefined && options.itemPosition.length > 0) {
       setPosition(options.itemPosition);
+    }
+    // Ensure the style for the given position is set.
+    else {
+      setPosition(this.itemPosition);
     }
 
     // Set ready status, after we registered all methods.
