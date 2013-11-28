@@ -56,7 +56,7 @@
     this.status = 'init';
 
     // This is the current itemPosition of the element.
-    this.itemPosition = 0;
+    this.itemPosition = $itemList.children('li').size();
 
 
     // Time since the item stands in that position.
@@ -168,7 +168,7 @@
      */
     this.getStyleForPosition = function (pos) {
       var style = {
-        "margin-top": '-' + ( ($wheel.prependedItems + pos) * $wheel.itemHeight) + 'px'
+        "margin-top": '-' + ( ( ($wheel.itemCount * 2) + pos) * $wheel.itemHeight) + 'px'
       };
       return style;
     }
@@ -197,7 +197,7 @@
      *   The callback to call when the position is reached.
      */
     var spinToNextPosition = function (duration, easing, finished) {
-      var style = $wheel.getStyleForPosition($wheel.itemPosition + 1);
+      var style = $wheel.getStyleForPosition($wheel.itemPosition - 1);
 
       $itemList.animate(
         style,
@@ -223,9 +223,9 @@
      * to the first item when we reached the last.
      */
     var setNextPosition = function () {
-      $wheel.itemPosition++;
-      if ($wheel.itemPosition == $wheel.itemCount) {
-        setPosition(0);
+      $wheel.itemPosition--;
+      if ($wheel.itemPosition <= -1) {
+        setPosition($wheel.itemCount - 1);
       }
       $wheel.itemTime = +new Date;
     };
@@ -238,11 +238,9 @@
     var setPosition = function (pos) {
       // Make sure we got an integer one.
       var pos = parseInt(pos);
-      if (pos < $wheel.itemCount) {
         var style = $wheel.getStyleForPosition(pos);
         $itemList.css(style);
         $wheel.itemPosition = pos;
-      }
     }
 
     /**
