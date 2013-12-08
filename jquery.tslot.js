@@ -1,11 +1,7 @@
 /**
  * @file
- * The jquery plugin structure is lent from "Building an Object-Oriented jQuery
- * Plugin" as I'm not smarty pants.
- *
- * @see http://www.virgentech.com/blog/2009/10/building-object-oriented-jquery-plugin.html
+ * Holds the jquery.tslot plugin.
  */
-
 
 (function ($) {
 
@@ -18,6 +14,7 @@
    *   - spinningDuration: the duration for a single item to change
    *   - spinningBrake: the factor the spinning gets slower when stopping
    *   - itemsToStop: the number of items to roll, till the wheel stops
+   *   - itemPosition: default position for the wheel (starts at 0)
    */
   var tSlotsWheel = function (element, options) {
 
@@ -57,7 +54,6 @@
 
     // This is the current itemPosition of the element.
     this.itemPosition = $itemList.children('li').size();
-
 
     // Time since the item stands in that position.
     this.itemTime = +new Date;
