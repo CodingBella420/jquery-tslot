@@ -65,9 +65,9 @@
 
 
     this.prependedItems = this.itemCount;
-    this.appendedItems = this.itemCount;
+    this.appendedItems = this.itemCount * 2;
 
-    // To get a seemless animation, we have to clone the first item to the last
+    // To get a seemless animation, we have to clone items to the front end the first item to the last
     // item of the list.
     $itemList.children('li').clone().prependTo($itemList);
     $itemList.children('li').clone().appendTo($itemList);
