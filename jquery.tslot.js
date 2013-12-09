@@ -63,14 +63,12 @@
     this.itemHeight = $itemList.children('li').first().outerHeight();
     this.itemCount = $itemList.children('li').size();
 
-
-    this.prependedItems = this.itemCount;
-    this.appendedItems = this.itemCount * 2;
-
-    // To get a seemless animation, we have to clone items to the front end the first item to the last
-    // item of the list.
+    // To get a seemless animation, we have to clone items to the front and the
+    // end. For reference we set the offset count as properties.
     $itemList.children('li').clone().prependTo($itemList);
     $itemList.children('li').clone().appendTo($itemList);
+    this.prependedItems = this.itemCount;
+    this.appendedItems = this.itemCount * 2;
 
     // Fill object params with value from options.
     var settings = $.extend({
@@ -89,7 +87,6 @@
 
     // Temp param to set for stopping.
     this.itemsToStopToGo = undefined;
-
 
     /**
      * Starts spinning the wheel.
@@ -164,7 +161,7 @@
      */
     this.getStyleForPosition = function (pos) {
       var style = {
-        "margin-top": '-' + ( ( ($wheel.itemCount * 2) + pos) * $wheel.itemHeight) + 'px'
+        "margin-top": '-' + ( ( $wheel.appendedItems + pos) * $wheel.itemHeight) + 'px'
       };
       return style;
     }
